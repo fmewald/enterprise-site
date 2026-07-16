@@ -8,6 +8,11 @@ const path = require('path');
 
 const DIR = path.join(__dirname, 'posts');
 
+if (!fs.existsSync(DIR)) {
+  console.log('Pasta posts/ não encontrada — nada a fazer.');
+  process.exit(0);
+}
+
 function parseFrontMatter(txt) {
   const m = txt.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   const meta = {};

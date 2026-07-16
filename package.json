@@ -1,0 +1,9 @@
+{
+  "name": "enterprise-site",
+  "version": "1.0.0",
+  "description": "Site institucional da Enterprise Assessoria Contábil",
+  "private": true,
+  "scripts": {
+    "build": "node build-blog-index.js"
+  }
+}
