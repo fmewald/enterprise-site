@@ -1,0 +1,46 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Idioma do painel
+locale: pt
+
+# Onde as imagens enviadas pela assistente são guardadas
+media_folder: "assets/img/blog"
+public_folder: "assets/img/blog"
+
+# Mensagens de commit amigáveis (a assistente não vê isso, mas fica organizado)
+site_url: https://enterprisecontabilidade.com.br
+display_url: https://enterprisecontabilidade.com.br
+logo_url: https://enterprisecontabilidade.com.br/assets/img/logo-horizontal.svg
+
+collections:
+  - name: "blog"
+    label: "Artigos do Blog"
+    label_singular: "Artigo"
+    folder: "posts"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    identifier_field: titulo
+    summary: "{{titulo}}  —  {{data}}"
+    sortable_fields: [data, titulo]
+    fields:
+      - { label: "Título", name: "titulo", widget: "string", hint: "O título que aparece no topo do artigo e na listagem." }
+      - { label: "Resumo", name: "resumo", widget: "text", hint: "Uma ou duas frases que aparecem no card do blog. Capriche: é o que faz a pessoa clicar." }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        options:
+          - "Reforma Tributária"
+          - "Transporte"
+          - "Construção"
+          - "Saúde"
+          - "Prestadores de Serviço"
+          - "Gestão Financeira"
+          - "Gestão"
+          - "Contabilidade"
+      - { label: "Imagem de capa", name: "capa", widget: "image", required: false, hint: "Opcional. Uma imagem horizontal fica melhor." }
+      - { label: "Data de publicação", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Conteúdo do artigo", name: "body", widget: "markdown", hint: "Escreva aqui. Use os botões de título, negrito e lista da barra de ferramentas." }

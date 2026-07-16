@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Reforma Tributária">
+<rect width="800" height="450" fill="#0B1013"/>
+<circle cx="640" cy="90" r="220" fill="none" stroke="#45B6BC" stroke-opacity="0.22"/>
+<circle cx="640" cy="90" r="150" fill="none" stroke="#45B6BC" stroke-opacity="0.14"/>
+<rect x="70" y="250" width="34" height="120" fill="#008C95"/>
+<rect x="120" y="200" width="34" height="170" fill="#45B6BC"/>
+<rect x="170" y="290" width="34" height="80" fill="#008C95"/>
+<text x="70" y="150" font-family="Libre Franklin,Arial,sans-serif" font-weight="800" font-size="52" fill="#fff">Reforma</text>
+<text x="70" y="205" font-family="Libre Franklin,Arial,sans-serif" font-weight="800" font-size="52" fill="#45B6BC">Tributária</text>
+</svg>
