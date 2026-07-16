@@ -1,0 +1,14 @@
+# ============================================================
+#  MODO BASTIDOR ATIVO — site invisível ao Google.
+#  Para LANÇAR: apague as 2 linhas "Disallow: /" abaixo,
+#  deixando apenas "Disallow: /admin/", e publique de novo.
+# ============================================================
+User-agent: *
+Disallow: /
+
+# Ao lançar, use no lugar:
+# User-agent: *
+# Allow: /
+# Disallow: /admin/
+
+Sitemap: https://enterprisecontabilidade.com.br/sitemap.xml

@@ -1,0 +1,32 @@
+# Configuração de publicação na Netlify
+
+[build]
+  # Regenera o índice do blog a cada publicação (inclui posts novos automaticamente)
+  command = "node build-blog-index.js"
+  publish = "."
+
+# ============================================================
+#  MODO BASTIDOR — o site fica no ar, mas invisível ao Google.
+#  Para ABRIR A PORTA (lançar oficialmente), apague este bloco
+#  [[headers]] inteiro (as 4 linhas abaixo) e publique de novo.
+# ============================================================
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+# ============================================================
+
+# ---- Cabeçalhos de segurança (boa prática, ajudam em SEO e proteção) ----
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache longo para imagens e assets (site mais rápido)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
