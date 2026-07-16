@@ -54,7 +54,7 @@
 
       if (!form.checkValidity()) { form.reportValidity(); return; }
 
-      // Monta o payload com todos os campos nomeados (inclui form-name p/ Netlify)
+      // Monta o payload com todos os campos nomeados
       var data = {};
       Array.prototype.forEach.call(form.elements, function (el) {
         if (el.name && el.type !== 'submit') {
@@ -62,6 +62,8 @@
         }
       });
       data.origem = window.location.pathname;
+      // Garante o form-name que a Netlify usa para identificar o formulário
+      data['form-name'] = form.getAttribute('name') || 'diagnostico';
 
       var btn = form.querySelector('button[type=submit]');
       var primeiro = (data.nome || '').split(' ')[0];
@@ -74,8 +76,14 @@
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: encodeForm(data)
       })
-        .then(function (r) { if (!r.ok) throw new Error('falha'); return r; })
-        .catch(function () { /* fallback silencioso: não perde a experiência do usuário */ })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r;
+        })
+        .catch(function (err) {
+          // Registra o erro no console para diagnóstico (F12), sem quebrar a experiência
+          if (window.console) console.error('Falha ao enviar o formulário à Netlify:', err);
+        })
         .finally(function () {
           if (msg) { msg.hidden = false; msg.textContent = opts.sucesso(primeiro); }
           btn.textContent = opts.btnFeito;
