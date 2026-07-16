@@ -53,16 +53,18 @@
 </script>
 </head>
 <body>
-<!-- Formulários ocultos para o Netlify detectar os campos no deploy (não aparecem na tela) -->
+<!-- Formulários ocultos para o Netlify detectar os campos no deploy (posicionados fora da tela) -->
 <form name="diagnostico-home" data-netlify="true" netlify-honeypot="empresa_site" hidden>
+  <input type="hidden" name="form-name" value="diagnostico-home">
   <input type="text" name="nome"><input type="email" name="email"><input type="tel" name="whatsapp">
-  <input type="text" name="segmento"><input type="text" name="regime"><input type="checkbox" name="consentimento">
+  <input type="text" name="segmento"><input type="text" name="regime"><input type="text" name="consentimento">
   <input type="text" name="empresa_site"><input type="text" name="origem">
 </form>
 <form name="diagnostico-contato" data-netlify="true" netlify-honeypot="empresa_site" hidden>
+  <input type="hidden" name="form-name" value="diagnostico-contato">
   <input type="text" name="nome"><input type="email" name="email"><input type="tel" name="whatsapp">
   <input type="text" name="segmento"><input type="text" name="regime"><input type="text" name="funcionarios">
-  <textarea name="mensagem"></textarea><input type="checkbox" name="consentimento">
+  <input type="text" name="mensagem"><input type="text" name="consentimento">
   <input type="text" name="empresa_site"><input type="text" name="origem">
 </form>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
