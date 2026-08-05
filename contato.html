@@ -34,11 +34,11 @@
       <a href="reforma-tributaria.html">Reforma Tributária</a>
       <a href="servicos.html">Serviços</a>
       <a href="gestao-financeira.html">Gestão Financeira</a>
-      <a href="segmentos.html">Seguimentos Atendidos</a>
+      <a href="segmentos.html">Segmentos Atendidos</a>
       <a href="planos.html">Planos</a>
       <a href="sobre.html">Sobre</a>
       <a href="blog.html">Blog</a>
-      <a class="btn btn--primary" href="contato.html">Falar com um especialista</a>
+      <a class="btn btn--primary" href="contato.html?interesse=contato-geral&amp;origem=contato&amp;cta=falar-especialista">Falar com um especialista</a>
     </nav>
   </div>
 </header>
@@ -49,9 +49,9 @@
   <div class="phero__arc" aria-hidden="true"></div>
   <div class="wrap">
     <nav class="crumbs" aria-label="Você está em"><a href="index.html">Início</a> › Contato</nav>
-    <span class="eyebrow">Diagnóstico gratuito</span>
-    <h1>Vamos olhar a sua empresa antes de falar em preço</h1>
-    <p class="lead" style="color:var(--silver)">Preencha o formulário ou chame no WhatsApp. Um contador especialista responde em até 1 dia útil — sem robô e sem enrolação.</p>
+    <span class="eyebrow" id="contact-eyebrow">Contato</span>
+    <h1 id="contact-title">Conte o básico sobre a sua empresa</h1>
+    <p class="lead" id="contact-support" style="color:var(--silver)">Nossa equipe analisará sua solicitação e direcionará o atendimento adequado.</p>
     <a class="btn btn--primary" href="https://wa.me/552126764328">Chamar no WhatsApp agora</a>
   </div>
 </section>
@@ -60,14 +60,42 @@
   <div class="wrap contact-grid">
     <div>
       <div class="diag" style="box-shadow:var(--shadow);border:1px solid var(--mist)">
-        <span class="diag__tag">Diagnóstico gratuito</span>
-        <h2>Conte sobre a sua empresa</h2>
-        <p>Quanto mais completo, mais precisa é a proposta.</p>
+        <span class="diag__tag" id="contact-form-tag">Atendimento personalizado</span>
+        <h2 id="contact-form-title">Envie sua solicitação</h2>
+        <p id="contact-form-intro">Compartilhe algumas informações básicas para direcionarmos o atendimento.</p>
+        <p class="interest-summary" id="contact-interest-summary" hidden></p>
         <form id="form-contato" name="diagnostico-contato" method="POST" data-netlify="true" netlify-honeypot="empresa_site" novalidate>
           <input type="hidden" name="form-name" value="diagnostico-contato">
+          <input type="hidden" name="lead_id" value="">
+          <input type="hidden" name="data_hora_iso" value="">
+          <input type="hidden" name="data_hora_brasilia" value="">
+          <input type="hidden" name="pagina_origem" value="">
+          <input type="hidden" name="titulo_pagina_origem" value="">
+          <input type="hidden" name="url_origem" value="">
+          <input type="hidden" name="pagina_formulario" value="">
+          <input type="hidden" name="url_envio" value="">
+          <input type="hidden" name="cta_codigo" value="">
+          <input type="hidden" name="cta_texto" value="">
+          <input type="hidden" name="interesse_codigo" value="">
+          <input type="hidden" name="interesse_descricao" value="">
+          <input type="hidden" name="servico_interesse" value="">
+          <input type="hidden" name="segmento_contexto" value="">
+          <input type="hidden" name="plano_interesse" value="">
+          <input type="hidden" name="landing_page" value="">
+          <input type="hidden" name="referrer_inicial" value="">
+          <input type="hidden" name="utm_source" value="">
+          <input type="hidden" name="utm_medium" value="">
+          <input type="hidden" name="utm_campaign" value="">
+          <input type="hidden" name="utm_content" value="">
+          <input type="hidden" name="utm_term" value="">
+          <input type="hidden" name="dispositivo" value="">
+          <input type="hidden" name="abordagem_sugerida" value="">
+          <input type="hidden" name="resumo_comercial" value="">
+          <input type="hidden" name="origem" value="">
           <div class="field"><label for="nome">Nome</label><input id="nome" name="nome" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="empresa_nome">Nome da empresa <span class="field__optional">(opcional)</span></label><input id="empresa_nome" name="empresa_nome" type="text" autocomplete="organization"></div>
           <div class="field"><label for="whatsapp">WhatsApp</label><input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 90000-0000" required></div>
-          <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+          <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" inputmode="email" autocomplete="email" required></div>
           <div class="field"><label for="segmento">Segmento da empresa</label>
             <select id="segmento" name="segmento" required>
               <option value="">Selecione…</option>
@@ -86,13 +114,14 @@
               <option>MEI</option><option>Não sei informar</option>
             </select>
           </div>
-          <div class="field"><label for="funcionarios">Funcionários registrados</label>
-            <select id="funcionarios" name="funcionarios" required>
+          <div class="field"><label for="funcionarios">Quantidade aproximada de funcionários <span class="field__optional">(opcional)</span></label>
+            <select id="funcionarios" name="funcionarios">
               <option value="">Selecione…</option>
               <option>Nenhum</option><option>1 a 5</option><option>6 a 15</option><option>16 a 40</option><option>Mais de 40</option>
+              <option>Não sei informar</option><option>Empresa ainda não aberta</option>
             </select>
           </div>
-          <div class="field"><label for="mensagem">Alguma situação específica? (opcional)</label>
+          <div class="field"><label for="mensagem">Situação específica ou mensagem <span class="field__optional">(opcional)</span></label>
             <textarea id="mensagem" name="mensagem" rows="3" placeholder="Ex.: tenho guias vencidas, quero trocar de contador, quero abrir filial…"></textarea>
           </div>
           <input class="hp" type="text" name="empresa_site" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -100,8 +129,9 @@
             <input type="checkbox" name="consentimento" required>
             <span>Autorizo a Enterprise a entrar em contato comigo e tratar meus dados para esta finalidade, conforme a <a href="politica-de-privacidade.html" style="text-decoration:underline">Política de Privacidade</a>.</span>
           </label>
-          <button class="btn btn--primary btn--block" type="submit" style="margin-top:1.1rem">Solicitar diagnóstico</button>
-          <p class="form-msg" id="form-msg" role="status" hidden></p>
+          <button class="btn btn--primary btn--block" id="contact-submit" type="submit" style="margin-top:1.1rem">Enviar solicitação</button>
+          <p class="form-msg" id="form-msg-contato" role="status" aria-live="polite" hidden></p>
+          <a class="btn btn--wa btn--block form-whatsapp" href="https://wa.me/552126764328" target="_blank" rel="noopener" hidden>Prefiro falar agora pelo WhatsApp</a>
         </form>
       </div>
     </div>
