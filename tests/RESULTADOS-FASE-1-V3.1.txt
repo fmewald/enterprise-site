@@ -1,0 +1,41 @@
+Fase 1 V3.1 — execução reproduzível por grupos
+Data da validação: 2026-08-05
+
+Comandos executados:
+python3 tests/test_fase1_v31.py --group estatico
+python3 tests/test_fase1_v31.py --group ctas
+python3 tests/test_fase1_v31.py --group seguranca
+python3 tests/test_fase1_v31.py --group layout
+python3 tests/test_fase1_v31.py --group fluxos
+python3 tests/test_fase1_v31.py --group regressao
+
+[estatico] Regressão, sintaxe e build
+APROVADO — 31 verificações executadas no grupo 'estatico'.
+
+[ctas]
+  - sete contextos da home
+APROVADO — 111 verificações executadas no grupo 'ctas'.
+
+[seguranca]
+  - fetch atrasado e bloqueios
+  - integração LGPD
+APROVADO — 61 verificações executadas no grupo 'seguranca'.
+
+[layout]
+  - primeira dobra da hero
+  - formulário compacto
+APROVADO — 49 verificações executadas no grupo 'layout'.
+
+[fluxos]
+  - hierarquia e WhatsApp
+  - preservação, sucesso, erro e acesso direto
+APROVADO — 53 verificações executadas no grupo 'fluxos'.
+
+[regressao]
+  - teclado e responsividade
+  - formulário de contato
+APROVADO — 50 verificações executadas no grupo 'regressao'.
+
+TOTAL CONSOLIDADO: 355 verificações aprovadas.
+
+Observação: cada grupo é executável isoladamente. O grupo 'seguranca' contém o teste reproduzível de fetch atrasado com resolução manual da Promise.

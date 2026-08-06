@@ -534,12 +534,12 @@
     if (field) field.value = value == null ? '' : String(value);
   }
 
-  function populateTracking(form, resolved, createSubmissionData) {
+  function populateTracking(form, resolved, createSubmissionData, leadId) {
     var now = new Date();
     var landingPage = safeSessionGet('landing_page') || currentPageValue();
     var referrer = safeSessionGet('referrer_inicial') || document.referrer || 'Não informado';
 
-    setFormValue(form, 'lead_id', createSubmissionData ? makeLeadId(now) : '');
+    setFormValue(form, 'lead_id', leadId || (createSubmissionData ? makeLeadId(now) : ''));
     setFormValue(form, 'data_hora_iso', createSubmissionData ? now.toISOString() : '');
     setFormValue(form, 'data_hora_brasilia', createSubmissionData ? formatBrasilia(now) : '');
     setFormValue(form, 'pagina_origem', resolved.origin.path);
@@ -580,20 +580,28 @@
     return data;
   }
 
-  function whatsappMessage(data, resolved) {
-    return [
-      'Olá! Acabei de enviar uma solicitação pelo site da Enterprise.',
-      'Nome: ' + (data.nome || 'Não informado'),
+  function whatsappMessage(data, resolved, includeName) {
+    var lines = [includeName
+      ? 'Olá! Acabei de enviar uma solicitação pelo site da Enterprise.'
+      : 'Olá! Quero falar com a Enterprise sobre uma solicitação iniciada no site.'];
+    if (includeName) lines.push('Nome: ' + (data.nome || 'Não informado'));
+    lines.push(
       'Interesse: ' + resolved.interest.description,
       'Segmento: ' + (resolved.segment ? resolved.segment.label : (data.segmento || 'Não informado')),
       'Plano: ' + (planDisplay(resolved) || 'Não informado'),
       'Identificador: ' + (data.lead_id || 'Não informado')
-    ].join('\n');
+    );
+    return lines.join('\n');
   }
 
-  function configureWhatsappLink(link, data, resolved) {
+  function configureWhatsappLink(link, data, resolved, options) {
     if (!link) return;
-    link.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(whatsappMessage(data, resolved));
+    options = options || {};
+    link.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
+      whatsappMessage(data, resolved, options.includeName !== false)
+    );
+    if (options.label) link.textContent = options.label;
+    link.classList.toggle('form-whatsapp--success', options.mode === 'success');
     link.hidden = false;
   }
 
@@ -605,13 +613,104 @@
     msg.hidden = false;
   }
 
-  function handleForm(form, contextProvider) {
+  function clearFormFeedback(form) {
     if (!form) return;
+    var msg = form.querySelector('.form-msg');
+    var whatsappLink = form.querySelector('.form-whatsapp');
+    var actions = form.querySelector('.home-form-actions');
+    if (msg) {
+      msg.hidden = true;
+      msg.textContent = '';
+      msg.classList.remove('form-msg--success', 'form-msg--error');
+    }
+    if (whatsappLink) {
+      whatsappLink.hidden = true;
+      whatsappLink.href = 'https://wa.me/' + WHATSAPP_NUMBER;
+      whatsappLink.classList.remove('form-whatsapp--success');
+    }
+    if (actions) actions.classList.remove('form-actions--completed');
+  }
+
+  function restoreSubmitButton(form, resolved, state) {
+    if (!form || (state && state.submitting)) return;
+    var button = form.querySelector('button[type="submit"]');
+    if (!button) return;
+    var text = form === document.getElementById('form-diagnostico')
+      ? homePresentation(resolved).button
+      : resolved.presentation.button;
+    button.disabled = false;
+    button.textContent = text;
+    button.setAttribute('data-original-text', text);
+  }
+
+  function setHomeWhatsappState(form, resolved, state, mode) {
+    if (!form || !resolved) return;
+    var link = form.querySelector('.form-whatsapp');
+    var actions = form.querySelector('.home-form-actions');
+    var success = mode === 'success';
+    var data = formDataObject(form);
+    if (state && state.leadId) data.lead_id = state.leadId;
+    configureWhatsappLink(link, data, resolved, {
+      includeName: false,
+      mode: success ? 'success' : 'initial',
+      label: success ? 'Continuar agora pelo WhatsApp' : 'Prefere falar agora? Chame no WhatsApp'
+    });
+    if (actions) actions.classList.toggle('form-actions--completed', success);
+  }
+
+  function setSubmissionPending(form, state, pending) {
+    if (!form || !state) return;
+    state.submitting = pending;
+    var closeButton = document.getElementById('home-form-close');
+    if (pending) {
+      form.setAttribute('aria-busy', 'true');
+      form.setAttribute('data-submitting', 'true');
+    } else {
+      form.removeAttribute('aria-busy');
+      form.removeAttribute('data-submitting');
+    }
+    if (closeButton) closeButton.disabled = pending;
+  }
+
+  function createHomeFormState() {
+    return {
+      leadId: makeLeadId(new Date()),
+      submitting: false,
+      completed: false
+    };
+  }
+
+  function resetHomeFormForNewRequest(form, state, resolved) {
+    if (!form || !state || state.submitting) return;
+    form.reset();
+    var optional = document.getElementById('home-form-optional');
+    if (optional) optional.open = false;
+    clearFormFeedback(form);
+    form.removeAttribute('aria-busy');
+    form.removeAttribute('data-submitting');
+    state.leadId = makeLeadId(new Date());
+    state.submitting = false;
+    state.completed = false;
+    applyHomePresentation(resolved);
+    restoreSubmitButton(form, resolved, state);
+    populateTracking(form, resolved, false, state.leadId);
+    setHomeWhatsappState(form, resolved, state, 'initial');
+  }
+
+  function handleForm(form, contextProvider, options) {
+    if (!form) return;
+    options = options || {};
+    var state = options.state || null;
+    var isHomeForm = form.id === 'form-diagnostico';
     var getResolved = typeof contextProvider === 'function' ? contextProvider : function () { return contextProvider; };
-    populateTracking(form, getResolved(), false);
+    var initialResolved = getResolved();
+    populateTracking(form, initialResolved, false, state ? state.leadId : '');
+    if (isHomeForm) setHomeWhatsappState(form, initialResolved, state, 'initial');
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
+      if (state && state.submitting) return;
+
       var resolved = getResolved();
       var msg = form.querySelector('.form-msg');
       var whatsappLink = form.querySelector('.form-whatsapp');
@@ -624,13 +723,22 @@
       if (!form.checkValidity()) { form.reportValidity(); return; }
 
       if (msg) msg.hidden = true;
-      if (whatsappLink) whatsappLink.hidden = true;
-      populateTracking(form, resolved, true);
+      if (isHomeForm) {
+        var actions = form.querySelector('.home-form-actions');
+        if (actions) actions.classList.remove('form-actions--completed');
+        if (whatsappLink) whatsappLink.classList.remove('form-whatsapp--success');
+      } else if (whatsappLink) {
+        whatsappLink.hidden = true;
+      }
+
+      if (state && !state.leadId) state.leadId = makeLeadId(new Date());
+      populateTracking(form, resolved, true, state ? state.leadId : '');
       var data = formDataObject(form);
       var firstName = (data.nome || '').split(/\s+/)[0];
 
+      if (state) setSubmissionPending(form, state, true);
       button.disabled = true;
-      button.textContent = 'Enviando…';
+      button.textContent = state ? 'Enviando...' : 'Enviando…';
 
       fetch('/', {
         method: 'POST',
@@ -638,6 +746,10 @@
         body: encodeForm(data)
       }).then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
+        if (state) {
+          setSubmissionPending(form, state, false);
+          state.completed = true;
+        }
         showFormMessage(
           msg,
           'Recebemos sua solicitação' + (firstName ? ', ' + firstName : '') + '. Nossa equipe entrará em contato em até 1 dia útil.',
@@ -645,37 +757,291 @@
         );
         button.textContent = 'Solicitação enviada';
         button.disabled = true;
-        configureWhatsappLink(whatsappLink, data, resolved);
+        if (isHomeForm) setHomeWhatsappState(form, resolved, state, 'success');
+        else configureWhatsappLink(whatsappLink, data, resolved);
+        if (typeof options.onSuccess === 'function') options.onSuccess(data, resolved);
       }).catch(function (err) {
         if (window.console) console.error('Falha ao enviar o formulário à Netlify:', err);
+        if (state) {
+          setSubmissionPending(form, state, false);
+          state.completed = false;
+        }
         showFormMessage(
           msg,
           'Não foi possível enviar sua solicitação agora. Tente novamente ou fale conosco pelo WhatsApp.',
           'error'
         );
-        button.disabled = false;
-        button.textContent = originalButtonText;
-        configureWhatsappLink(whatsappLink, data, resolved);
+        restoreSubmitButton(form, resolved, state);
+        if (isHomeForm) setHomeWhatsappState(form, resolved, state, 'initial');
+        else configureWhatsappLink(whatsappLink, data, resolved);
+        if (typeof options.onError === 'function') options.onError(err, data, resolved);
       });
     });
   }
 
-  function setupHomeCtaTracking(form, getActiveContext, setActiveContext) {
-    if (!form) return;
+  function setupHomeModal(form, dialog, getActiveContext, setActiveContext, state) {
+    if (!form || !dialog) return null;
 
-    document.addEventListener('click', function (event) {
-      var target = event.target;
-      var link = target && typeof target.closest === 'function' ? target.closest('a[href="#diagnostico"][data-lead-interest]') : null;
-      if (!link) return;
+    var closeButton = document.getElementById('home-form-close');
+    var originalParent = dialog.parentNode;
+    var originalNextSibling = dialog.nextSibling;
+    var opener = null;
+    var open = false;
+    var scrollY = 0;
+    var bodyStyle = null;
+    var backgroundState = [];
+    var lgpdState = null;
+    var backdrop = document.createElement('div');
+    backdrop.className = 'home-form-backdrop';
+    backdrop.id = 'home-form-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.hidden = true;
+    document.body.appendChild(backdrop);
 
-      var nextContext = getHomeContextFromLink(link);
-      if (!nextContext) return;
+    function trackedLinkFromEventTarget(target) {
+      return target && typeof target.closest === 'function'
+        ? target.closest('a[href="#diagnostico"][data-lead-interest]')
+        : null;
+    }
 
+    function focusableElements() {
+      var selector = [
+        'a[href]',
+        'button:not([disabled])',
+        'input:not([disabled]):not([type="hidden"])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        'summary',
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(',');
+      return Array.prototype.filter.call(dialog.querySelectorAll(selector), function (element) {
+        return !element.hidden && element.getAttribute('aria-hidden') !== 'true' && element.getClientRects().length > 0;
+      });
+    }
+
+    function lockDocumentScroll() {
+      scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+      bodyStyle = {
+        position: document.body.style.position,
+        top: document.body.style.top,
+        left: document.body.style.left,
+        right: document.body.style.right,
+        width: document.body.style.width,
+        overflow: document.body.style.overflow,
+        paddingRight: document.body.style.paddingRight
+      };
+      document.body.classList.add('body-modal-open');
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + scrollY + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      if (scrollbarWidth) document.body.style.paddingRight = scrollbarWidth + 'px';
+    }
+
+    function unlockDocumentScroll() {
+      if (!bodyStyle) return;
+      document.body.classList.remove('body-modal-open');
+      document.body.style.position = bodyStyle.position;
+      document.body.style.top = bodyStyle.top;
+      document.body.style.left = bodyStyle.left;
+      document.body.style.right = bodyStyle.right;
+      document.body.style.width = bodyStyle.width;
+      document.body.style.overflow = bodyStyle.overflow;
+      document.body.style.paddingRight = bodyStyle.paddingRight;
+      var rootScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, scrollY);
+      document.documentElement.style.scrollBehavior = rootScrollBehavior;
+      bodyStyle = null;
+    }
+
+    function hideLgpdForModal() {
+      var banner = document.getElementById('lgpd');
+      if (!banner || lgpdState) return;
+      lgpdState = {
+        banner: banner,
+        hadHiddenClass: banner.classList.contains('lgpd--modal-hidden'),
+        ariaHidden: banner.getAttribute('aria-hidden'),
+        inertSupported: 'inert' in banner,
+        inert: 'inert' in banner ? banner.inert : null,
+        shouldHide: banner.getAttribute('data-show') === 'true'
+      };
+      if (!lgpdState.shouldHide) return;
+      banner.classList.add('lgpd--modal-hidden');
+      banner.setAttribute('aria-hidden', 'true');
+      if (lgpdState.inertSupported) banner.inert = true;
+    }
+
+    function restoreLgpdAfterModal() {
+      if (!lgpdState) return;
+      var banner = lgpdState.banner;
+      if (lgpdState.hadHiddenClass) banner.classList.add('lgpd--modal-hidden');
+      else banner.classList.remove('lgpd--modal-hidden');
+      if (lgpdState.ariaHidden === null) banner.removeAttribute('aria-hidden');
+      else banner.setAttribute('aria-hidden', lgpdState.ariaHidden);
+      if (lgpdState.inertSupported) banner.inert = lgpdState.inert;
+      lgpdState = null;
+    }
+
+    function hideBackgroundFromAssistiveTechnology() {
+      backgroundState = [];
+      Array.prototype.forEach.call(document.body.children, function (element) {
+        if (element === dialog || element === backdrop || element.id === 'lgpd' || element.tagName === 'SCRIPT') return;
+        backgroundState.push({
+          element: element,
+          ariaHidden: element.getAttribute('aria-hidden'),
+          inert: 'inert' in element ? element.inert : null
+        });
+        element.setAttribute('aria-hidden', 'true');
+        if ('inert' in element) element.inert = true;
+      });
+    }
+
+    function restoreBackgroundAccessibility() {
+      backgroundState.forEach(function (item) {
+        if (item.ariaHidden === null) item.element.removeAttribute('aria-hidden');
+        else item.element.setAttribute('aria-hidden', item.ariaHidden);
+        if (item.inert !== null) item.element.inert = item.inert;
+      });
+      backgroundState = [];
+    }
+
+    function prepareContext(nextContext) {
+      if (state.submitting) return null;
       setActiveContext(nextContext);
       var resolved = resolveContext(getActiveContext());
-      applyHomePresentation(resolved);
-      populateTracking(form, resolved, false);
+
+      if (state.completed) {
+        resetHomeFormForNewRequest(form, state, resolved);
+      } else {
+        clearFormFeedback(form);
+        applyHomePresentation(resolved);
+        restoreSubmitButton(form, resolved, state);
+        populateTracking(form, resolved, false, state.leadId);
+        setHomeWhatsappState(form, resolved, state, 'initial');
+      }
+      return resolved;
+    }
+
+    function openModal(link) {
+      if (state.submitting) return false;
+      var nextContext = getHomeContextFromLink(link);
+      if (!nextContext) return false;
+      opener = link;
+
+      if (!open) lockDocumentScroll();
+      var resolved = prepareContext(nextContext);
+      if (!resolved) return false;
+
+      if (!open) {
+        backdrop.hidden = false;
+        document.body.appendChild(dialog);
+        dialog.classList.add('home-form-modal-open');
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.setAttribute('aria-labelledby', 'home-form-title');
+        dialog.setAttribute('aria-describedby', 'home-form-intro');
+        if (closeButton) {
+          closeButton.hidden = false;
+          closeButton.disabled = false;
+        }
+        hideLgpdForModal();
+        hideBackgroundFromAssistiveTechnology();
+        open = true;
+      }
+
+      window.requestAnimationFrame(function () {
+        if (closeButton) closeButton.focus();
+        else document.getElementById('home-form-title').focus();
+      });
+      return true;
+    }
+
+    function closeModal() {
+      if (!open || state.submitting) return false;
+      open = false;
+      dialog.classList.remove('home-form-modal-open');
+      dialog.removeAttribute('role');
+      dialog.removeAttribute('aria-modal');
+      dialog.removeAttribute('aria-labelledby');
+      dialog.removeAttribute('aria-describedby');
+      if (closeButton) {
+        closeButton.disabled = false;
+        closeButton.hidden = true;
+      }
+      backdrop.hidden = true;
+      restoreBackgroundAccessibility();
+      restoreLgpdAfterModal();
+
+      if (originalNextSibling && originalNextSibling.parentNode === originalParent) {
+        originalParent.insertBefore(dialog, originalNextSibling);
+      } else {
+        originalParent.appendChild(dialog);
+      }
+      unlockDocumentScroll();
+
+      var focusTarget = opener;
+      opener = null;
+      if (focusTarget && typeof focusTarget.focus === 'function') focusTarget.focus();
+      return true;
+    }
+
+    document.addEventListener('click', function (event) {
+      var link = trackedLinkFromEventTarget(event.target);
+      if (!link) return;
+      event.preventDefault();
+      openModal(link);
     });
+
+    document.addEventListener('keydown', function (event) {
+      var link = trackedLinkFromEventTarget(event.target);
+      if (!open && link && (event.key === ' ' || event.key === 'Spacebar')) {
+        event.preventDefault();
+        openModal(link);
+        return;
+      }
+
+      if (!open) return;
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      var focusables = focusableElements();
+      if (!focusables.length) {
+        event.preventDefault();
+        if (closeButton && !closeButton.disabled) closeButton.focus();
+        else dialog.focus();
+        return;
+      }
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (!dialog.contains(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    if (closeButton) closeButton.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    dialog.addEventListener('click', function (event) { event.stopPropagation(); });
+
+    return {
+      open: openModal,
+      close: closeModal,
+      isOpen: function () { return open; }
+    };
   }
 
   initializeSessionTracking();
@@ -714,16 +1080,31 @@
   });
 
   var homeContext = getHomeContext();
+  var homeFormState = createHomeFormState();
   var contactResolved = resolveContext(getContactContext());
   applyContactPresentation(contactResolved);
   var homeForm = document.getElementById('form-diagnostico');
+  var homeDialog = document.getElementById('diagnostico');
   applyHomePresentation(resolveContext(homeContext));
-  handleForm(homeForm, function () { return resolveContext(homeContext); });
-  setupHomeCtaTracking(
+  handleForm(homeForm, function () { return resolveContext(homeContext); }, { state: homeFormState });
+  setupHomeModal(
     homeForm,
+    homeDialog,
     function () { return homeContext; },
-    function (nextContext) { homeContext = nextContext; }
+    function (nextContext) { homeContext = nextContext; },
+    homeFormState
   );
+  var homeWhatsappLink = homeForm && homeForm.querySelector('.form-whatsapp');
+  if (homeWhatsappLink) {
+    homeWhatsappLink.addEventListener('click', function () {
+      setHomeWhatsappState(
+        homeForm,
+        resolveContext(homeContext),
+        homeFormState,
+        homeFormState.completed ? 'success' : 'initial'
+      );
+    });
+  }
   handleForm(document.getElementById('form-contato'), function () { return contactResolved; });
 
   /* ---------- Banner LGPD ---------- */

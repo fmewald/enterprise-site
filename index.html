@@ -182,9 +182,10 @@
     </div>
 
     <!-- Elemento-assinatura: avaliação inicial -->
-    <aside class="diag" id="diagnostico">
+    <aside class="diag home-form-shell home-form-dialog" id="diagnostico">
+      <button class="home-form-close" id="home-form-close" type="button" aria-label="Fechar formulário" hidden>×</button>
       <span class="diag__tag" id="home-form-tag">Avaliação inicial gratuita</span>
-      <h2 id="home-form-title">Vamos entender o cenário da sua empresa</h2>
+      <h2 id="home-form-title" tabindex="-1">Vamos entender o cenário da sua empresa</h2>
       <p id="home-form-intro">Preencha algumas informações básicas. Nossa equipe receberá o contexto da sua empresa e entrará em contato para direcionar a avaliação mais adequada ao seu caso.</p>
       <p class="interest-summary" id="home-interest-summary" hidden></p>
 
@@ -216,23 +217,26 @@
         <input type="hidden" name="abordagem_sugerida" value="">
         <input type="hidden" name="resumo_comercial" value="">
         <input type="hidden" name="origem" value="">
-        <div class="field">
-          <label for="nome">Nome</label>
-          <input id="nome" name="nome" type="text" autocomplete="name" required>
+        <div class="home-form-primary-grid">
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="empresa_nome">Nome da empresa <span class="field__optional">(opcional)</span></label>
+            <input id="empresa_nome" name="empresa_nome" type="text" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp</label>
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 90000-0000" required>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@suaempresa.com.br" required>
+          </div>
         </div>
-        <div class="field">
-          <label for="empresa_nome">Nome da empresa <span class="field__optional">(opcional)</span></label>
-          <input id="empresa_nome" name="empresa_nome" type="text" autocomplete="organization">
-        </div>
-        <div class="field">
-          <label for="whatsapp">WhatsApp</label>
-          <input id="whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 90000-0000" required>
-        </div>
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@suaempresa.com.br" required>
-        </div>
-        <div class="field">
+
+        <div class="field home-form-segment">
           <label for="segmento">Segmento da empresa</label>
           <select id="segmento" name="segmento" required>
             <option value="">Selecione…</option>
@@ -244,34 +248,40 @@
             <option>Ainda vou abrir a empresa</option>
           </select>
         </div>
-        <div class="field">
-          <label for="regime">Regime tributário atual</label>
-          <select id="regime" name="regime" required>
-            <option value="">Selecione…</option>
-            <option>Simples Nacional</option>
-            <option>Lucro Presumido</option>
-            <option>Lucro Real</option>
-            <option>MEI</option>
-            <option>Não sei informar</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="funcionarios">Quantidade aproximada de funcionários <span class="field__optional">(opcional)</span></label>
-          <select id="funcionarios" name="funcionarios">
-            <option value="">Selecione…</option>
-            <option>Nenhum</option>
-            <option>1 a 5</option>
-            <option>6 a 15</option>
-            <option>16 a 40</option>
-            <option>Mais de 40</option>
-            <option>Não sei informar</option>
-            <option>Empresa ainda não aberta</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="mensagem">Situação específica ou mensagem <span class="field__optional">(opcional)</span></label>
-          <textarea id="mensagem" name="mensagem" rows="3" placeholder="Conte brevemente o que motivou seu contato."></textarea>
-        </div>
+
+        <details class="home-form-optional" id="home-form-optional">
+          <summary>Adicionar mais informações <span>— opcional</span></summary>
+          <div class="home-form-optional__content">
+            <div class="field">
+              <label for="regime">Regime tributário atual <span class="field__optional">(opcional)</span></label>
+              <select id="regime" name="regime">
+                <option value="">Selecione…</option>
+                <option>Simples Nacional</option>
+                <option>Lucro Presumido</option>
+                <option>Lucro Real</option>
+                <option>MEI</option>
+                <option>Não sei informar</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="funcionarios">Quantidade aproximada de funcionários <span class="field__optional">(opcional)</span></label>
+              <select id="funcionarios" name="funcionarios">
+                <option value="">Selecione…</option>
+                <option>Nenhum</option>
+                <option>1 a 5</option>
+                <option>6 a 15</option>
+                <option>16 a 40</option>
+                <option>Mais de 40</option>
+                <option>Não sei informar</option>
+                <option>Empresa ainda não aberta</option>
+              </select>
+            </div>
+            <div class="field home-form-optional__message">
+              <label for="mensagem">Situação específica ou mensagem <span class="field__optional">(opcional)</span></label>
+              <textarea id="mensagem" name="mensagem" rows="3" placeholder="Conte brevemente o que motivou seu contato."></textarea>
+            </div>
+          </div>
+        </details>
 
         <input class="hp" type="text" name="empresa_site" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -280,9 +290,12 @@
           <span>Autorizo a Enterprise a entrar em contato comigo e tratar meus dados para esta finalidade, conforme a <a href="politica-de-privacidade.html" style="text-decoration:underline">Política de Privacidade</a>.</span>
         </label>
 
-        <button class="btn btn--primary btn--block" id="home-submit" type="submit" style="margin-top:1.1rem">Solicitar avaliação</button>
-        <p class="form-msg" id="form-msg-home" role="status" aria-live="polite" hidden></p>
-        <a class="btn btn--wa btn--block form-whatsapp" href="https://wa.me/552126764328" target="_blank" rel="noopener" hidden>Prefiro falar agora pelo WhatsApp</a>
+        <div class="home-form-actions">
+          <button class="btn btn--primary btn--block" id="home-submit" type="submit">Solicitar avaliação</button>
+          <p class="form-msg" id="form-msg-home" role="status" aria-live="polite" hidden></p>
+          <div class="home-form-alternative" aria-hidden="true"><span>ou</span></div>
+          <a class="form-whatsapp form-whatsapp--secondary" href="https://wa.me/552126764328" target="_blank" rel="noopener">Prefere falar agora? Chame no WhatsApp</a>
+        </div>
       </form>
     </aside>
   </div>
