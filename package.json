@@ -1,9 +1,31 @@
 {
   "name": "enterprise-site",
-  "version": "1.0.0",
-  "description": "Site institucional da Enterprise Assessoria Contábil",
+  "version": "2.2.0",
+  "description": "Site institucional da Enterprise Assessoria Contábil — pré-lançamento integral V1.2",
   "private": true,
   "scripts": {
-    "build": "node build-blog-index.js"
+    "build": "node scripts/build-site.js",
+    "build:staging": "PUBLIC_INDEXING=false CONTEXT=deploy-preview node scripts/build-site.js",
+    "build:production": "PUBLIC_INDEXING=true CONTEXT=production node scripts/build-site.js",
+    "test:dist": "python3 tests/test_v12_dist.py",
+    "test:blog": "python3 tests/test_v12_blog.py",
+    "test:regression": "python3 tests/test_fase1_v31.py",
+    "test": "npm run build:test && npm run test:dist && npm run test:blog && npm run test:regression",
+    "build:test": "BUILD_DATE=2026-08-06 PUBLIC_INDEXING=false CONTEXT=deploy-preview node scripts/build-site.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "enterpriseBuild": {
+    "markdownParser": "markdown-it-py",
+    "markdownParserVersion": "4.2.0",
+    "markdownUrlNormalizer": "mdurl 0.1.2",
+    "sanitization": "Allowlist local; HTML bruto desabilitado",
+    "runtime": "Node.js 22 + Python 3.12+",
+    "buildTimezone": "America/Sao_Paulo",
+    "decapCmsVersion": "3.11.0"
+  },
+  "dependencies": {
+    "@enterprise/markdown-renderer": "file:vendor/markdown-renderer"
   }
 }

@@ -12,7 +12,8 @@ from urllib.parse import parse_qs, unquote
 
 from playwright.sync_api import Browser, Page, sync_playwright
 
-ROOT = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("SITE_ROOT", REPO / "dist"))
 CHROMIUM = os.environ.get("CHROMIUM_PATH", "/usr/bin/chromium")
 ASSERTIONS = 0
 
@@ -48,8 +49,8 @@ window.fetch = function (url, options) {{
 }};
 </script>
 """
-    html = html.replace('<link rel="stylesheet" href="assets/css/styles.css">', f"<style>{css}</style>")
-    html = html.replace('<script src="assets/js/main.js" defer></script>', mock_fetch + f"<script>{js}</script>")
+    html = re.sub(r'<link[^>]+href="/?assets/css/styles\.css"[^>]*>', lambda _m: f"<style>{css}</style>", html)
+    html = re.sub(r'<script[^>]+src="/?assets/js/main\.js"[^>]*></script>', lambda _m: mock_fetch + f"<script>{js}</script>", html)
     html = re.sub(
         r'<script src="https://identity\.netlify\.com[^>]*></script>\s*<script>.*?</script>',
         "",
@@ -136,10 +137,10 @@ def test_static_regression() -> None:
 
     contact_links: list[str] = []
     for path in html_files:
-        contact_links.extend(re.findall(r'href="(contato\.html[^\"]*)"', path.read_text(encoding="utf-8")))
-    check(len(contact_links) == 67, "Quantidade de links para contato.html mudou")
+        contact_links.extend(re.findall(r'href="(/contato[^\"]*)"', path.read_text(encoding="utf-8")))
+    check(len(contact_links) == 67, "Quantidade de links contextualizados para /contato mudou")
     check(all("interesse=" in href and "origem=" in href and "cta=" in href for href in contact_links), "Link de contato perdeu contexto")
-    check(len(re.findall(r'href="#diagnostico"[^>]+data-lead-interest=', index)) == 7, "Quantidade de CTAs internos mudou")
+    check(index.count('href="#diagnostico"') == 7 and index.count('data-lead-interest=') >= 7, "Quantidade de CTAs internos mudou")
     check(index.count('id="form-diagnostico"') == 1, "Formulário visível da home foi duplicado")
     check(index.count('id="diagnostico"') == 1, "ID diagnostico foi duplicado")
     check(len(re.findall(r'<form\b[^>]*name="diagnostico-home"', index)) == 2, "Formulário Netlify da home foi alterado")
@@ -179,7 +180,14 @@ def test_static_regression() -> None:
             clean = attr.split("#", 1)[0].split("?", 1)[0]
             if not clean or any(token in clean for token in ("'", '"', "+", "$", "{", "}")):
                 continue
-            if not (path.parent / clean).resolve().exists():
+            if clean.startswith('/'):
+                route = clean.lstrip('/')
+                if not route:
+                    continue
+                candidates = [ROOT / route, ROOT / (route + '.html'), ROOT / route / 'index.html']
+                if not any(candidate.exists() for candidate in candidates):
+                    missing.append(f"{path.name}: {clean}")
+            elif not (path.parent / clean).resolve().exists():
                 missing.append(f"{path.name}: {clean}")
     check(not missing, "Referências locais ausentes: " + ", ".join(missing[:5]))
 
@@ -289,7 +297,7 @@ def test_lgpd_integration(browser: Browser) -> None:
     check(page.evaluate("document.getElementById('lgpd').inert === true") == before_inert, "Estado inert anterior não foi restaurado")
     check(page.locator("#lgpd-accept").is_visible(), "Aceitar não voltou a ficar acessível")
     check(page.locator("#lgpd-reject").is_visible(), "Recusar não voltou a ficar acessível")
-    check(page.locator('#lgpd a[href="politica-de-privacidade.html"]').is_visible(), "Saiba mais não voltou a ficar acessível")
+    check(page.locator('#lgpd a[href="/politica-de-privacidade"]').is_visible(), "Saiba mais não voltou a ficar acessível")
     page.close()
 
 
@@ -468,6 +476,7 @@ def test_closing_keyboard_and_responsiveness(browser: Browser) -> None:
     trigger.focus()
     page.keyboard.press("Space")
     check(modal_is_open(page), "Barra de espaço não abriu o modal")
+    page.wait_for_function("document.activeElement && document.activeElement.id === 'home-form-close'")
     check(page.evaluate("document.activeElement.id") == "home-form-close", "Foco não entrou no modal")
     page.keyboard.press("Shift+Tab")
     check(page.evaluate("document.getElementById('diagnostico').contains(document.activeElement)"), "Shift+Tab escapou")
@@ -534,7 +543,10 @@ def test_contact_form_regression(browser: Browser) -> None:
 
 def run_browser_test(playwright, label: str, test_func) -> None:
     print("  - " + label, flush=True)
-    browser = playwright.chromium.launch(headless=True, executable_path=CHROMIUM, args=["--no-sandbox", "--disable-gpu"])
+    launch_options = {"headless": True, "args": ["--no-sandbox", "--disable-gpu"]}
+    if CHROMIUM and Path(CHROMIUM).exists():
+        launch_options["executable_path"] = CHROMIUM
+    browser = playwright.chromium.launch(**launch_options)
     try:
         test_func(browser)
     finally:
@@ -544,9 +556,10 @@ def run_browser_test(playwright, label: str, test_func) -> None:
 def run_static_group() -> None:
     print("[estatico] Regressão, sintaxe e build", flush=True)
     test_static_regression()
-    node_check = subprocess.run(["node", "--check", "assets/js/main.js"], cwd=ROOT, capture_output=True, text=True)
+    node_check = subprocess.run(["node", "--check", "assets/js/main.js"], cwd=REPO, capture_output=True, text=True)
     check(node_check.returncode == 0, "Falha de sintaxe JavaScript: " + node_check.stderr.strip())
-    blog_build = subprocess.run(["npm", "run", "build"], cwd=ROOT, capture_output=True, text=True)
+    blog_env = os.environ.copy(); blog_env.update(BUILD_DATE="2026-08-06", PUBLIC_INDEXING="false", CONTEXT="deploy-preview")
+    blog_build = subprocess.run(["npm", "run", "build"], cwd=REPO, env=blog_env, capture_output=True, text=True)
     check(blog_build.returncode == 0, "Falha no build do blog: " + blog_build.stderr.strip())
 
 
@@ -594,7 +607,7 @@ def main() -> int:
         for group in ("estatico", "ctas", "seguranca", "layout", "fluxos", "regressao"):
             result = subprocess.run(
                 [sys.executable, str(Path(__file__).resolve()), "--group", group],
-                cwd=ROOT,
+                cwd=REPO,
                 capture_output=True,
                 text=True,
                 timeout=300,

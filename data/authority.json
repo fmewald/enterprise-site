@@ -1,0 +1,48 @@
+{
+  "organization": {
+    "displayName": "Enterprise Assessoria Contábil",
+    "legalName": "Enterprise Assessoria Contábil LTDA",
+    "cnpj": "10.418.235/0001-51",
+    "crc": "CRC-RJ 007202/O",
+    "yearsOfExperience": 30,
+    "googleBusinessProfileUrl": "https://share.google/IuMTAk3WocvJfScqG",
+    "googleRatingText": "5,0",
+    "googleReviewsText": "mais de 200 avaliações",
+    "telephone": "+55-21-2676-4328",
+    "email": "comercial@enterprisecontabilidade.com.br",
+    "address": {
+      "streetAddress": "Rodovia Washington Luiz, 14.333, sala 201, Figueira",
+      "addressLocality": "Duque de Caxias",
+      "addressRegion": "RJ",
+      "postalCode": "25230-005",
+      "addressCountry": "BR"
+    },
+    "openingHours": {
+      "days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "opens": "09:00",
+      "closes": "18:00"
+    },
+    "areaServed": [
+      "Duque de Caxias",
+      "Rio de Janeiro",
+      "Brasil"
+    ],
+    "socialProfiles": [
+      "https://www.instagram.com/enterprisecontabilidade"
+    ]
+  },
+  "responsibleTechnical": {
+    "name": "Fernando de Medeiros Ewald",
+    "jobTitle": "Responsável técnico",
+    "crc": "CRC-RJ 120853/O"
+  },
+  "privacy": {
+    "email": "comercial@enterprisecontabilidade.com.br"
+  }
+}

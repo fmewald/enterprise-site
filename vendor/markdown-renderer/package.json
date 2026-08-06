@@ -1,0 +1,7 @@
+{
+  "name": "@enterprise/markdown-renderer",
+  "version": "4.2.0",
+  "private": true,
+  "description": "Camada vendorizada de markdown-it-py 4.2.0 com mdurl 0.1.2 para builds determinísticos.",
+  "license": "MIT"
+}

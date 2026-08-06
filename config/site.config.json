@@ -1,0 +1,124 @@
+{
+  "publicIndexing": false,
+  "siteUrl": "https://enterprisecontabilidade.com.br",
+  "siteName": "Enterprise Assessoria Contábil",
+  "language": "pt-BR",
+  "defaultOgImage": "/assets/img/og-enterprise-1200x630.jpg",
+  "publicPages": [
+    {
+      "file": "index.html",
+      "path": "/",
+      "priority": "1.0",
+      "changefreq": "weekly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "sobre.html",
+      "path": "/sobre",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "servicos.html",
+      "path": "/servicos",
+      "priority": "0.9",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "segmentos.html",
+      "path": "/segmentos",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "planos.html",
+      "path": "/planos",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "gestao-financeira.html",
+      "path": "/gestao-financeira",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "reforma-tributaria.html",
+      "path": "/reforma-tributaria",
+      "priority": "0.9",
+      "changefreq": "weekly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "contato.html",
+      "path": "/contato",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "politica-de-privacidade.html",
+      "path": "/politica-de-privacidade",
+      "priority": "0.2",
+      "changefreq": "yearly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "blog.html",
+      "path": "/blog",
+      "priority": "0.8",
+      "changefreq": "weekly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "contabilidade-para-transportadoras.html",
+      "path": "/contabilidade-para-transportadoras",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "contabilidade-para-construcao-civil.html",
+      "path": "/contabilidade-para-construcao-civil",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "contabilidade-para-clinicas-e-medicos.html",
+      "path": "/contabilidade-para-clinicas-e-medicos",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    },
+    {
+      "file": "contabilidade-para-prestadores-de-servico.html",
+      "path": "/contabilidade-para-prestadores-de-servico",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "lastmod": "2026-08-06"
+    }
+  ],
+  "legacyPages": {
+    "/index.html": "/",
+    "/index-local.html": "/",
+    "/sobre.html": "/sobre",
+    "/servicos.html": "/servicos",
+    "/segmentos.html": "/segmentos",
+    "/planos.html": "/planos",
+    "/gestao-financeira.html": "/gestao-financeira",
+    "/reforma-tributaria.html": "/reforma-tributaria",
+    "/contato.html": "/contato",
+    "/politica-de-privacidade.html": "/politica-de-privacidade",
+    "/blog.html": "/blog",
+    "/contabilidade-para-transportadoras.html": "/contabilidade-para-transportadoras",
+    "/contabilidade-para-construcao-civil.html": "/contabilidade-para-construcao-civil",
+    "/contabilidade-para-clinicas-e-medicos.html": "/contabilidade-para-clinicas-e-medicos",
+    "/contabilidade-para-prestadores-de-servico.html": "/contabilidade-para-prestadores-de-servico"
+  }
+}
