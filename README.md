@@ -1,33 +1,5 @@
-# Enterprise Assessoria Contábil — site institucional
+# Renderizador Markdown vendorizado
 
-Projeto estático publicado pela Netlify a partir da pasta `dist/`.
+Este pacote local registra a dependência de build baseada em **markdown-it-py 4.2.0** e **mdurl 0.1.2**. O código Python é mantido em `python/` para que `npm ci` e o build da Netlify não dependam de download de pacotes externos.
 
-## Ambiente
-
-- Node.js 22
-- Python 3.12 ou superior
-- Netlify Identity habilitado
-- Git Gateway habilitado
-- Decap CMS 3.11.0
-
-## Comandos
-
-```bash
-npm ci
-npm run build
-npm test
-```
-
-O build remove e recria `dist/`. Por segurança, a indexação pública só é liberada quando `PUBLIC_INDEXING=true` e `CONTEXT=production`.
-
-## Blog e CMS
-
-O painel permanece em `/admin/`, com `backend: git-gateway` e `publish_mode: editorial_workflow`. O fluxo editorial é a fonte principal de publicação. Um arquivo presente na branch principal é publicado, salvo quando contém `draft: true`.
-
-## Data de referência
-
-O build aceita `BUILD_DATE=YYYY-MM-DD`. Sem a variável, utiliza a data atual no fuso `America/Sao_Paulo`.
-
-## Pacotes de entrega
-
-Use o ZIP identificado como **REPOSITORIO-PUBLICO** para atualizar o GitHub. O pacote **AUDITORIA-INTERNA** contém documentos e logs que não devem ser enviados ao repositório público.
+A saída é filtrada por allowlist em `scripts/render_markdown.py`. HTML bruto fica desabilitado; scripts, atributos de evento e URLs `javascript:` não são aceitos.
