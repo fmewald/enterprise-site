@@ -194,9 +194,13 @@ ul{margin:0;padding:0;list-style:none}
 
 /* Segmentos */
 .seg{position:relative;border:1px solid var(--mist);border-radius:var(--r);padding:1.5rem;background:#fff}
-.seg--focus{border-color:var(--teal);background:var(--teal-50)}
+.seg--focus{border-color:var(--teal);background:var(--teal-50);display:flex;flex-direction:column}
 .seg b{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .seg span{font-size:.9rem;color:var(--graphite)}
+.seg__link{display:inline-flex;align-items:center;min-height:44px;margin-top:auto;padding-top:1rem;font-size:.88rem;font-weight:800;line-height:1.35;color:var(--teal-700);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.seg__link:hover{color:var(--ink)}
+.seg__link-tail{white-space:nowrap}
+.seg__link:focus-visible{outline:3px solid var(--teal-400);outline-offset:4px;border-radius:4px}
 
 /* ---------------- Reforma tributária (bloco de urgência) ---------------- */
 .reforma{position:relative;overflow:hidden}
@@ -277,6 +281,10 @@ ul{margin:0;padding:0;list-style:none}
   box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
 .wa:hover{background:#0f7a6d}
 .wa svg{width:20px;height:20px;fill:currentColor}
+@media (max-width:560px){
+  .wa{right:.75rem;bottom:.75rem;width:52px;height:52px;padding:0;justify-content:center;gap:0;border-radius:50%;font-size:0;line-height:0}
+  .wa svg{width:24px;height:24px;flex:none}
+}
 
 /* ---------------- Banner LGPD ---------------- */
 .lgpd{position:fixed;inset:auto 1rem 1rem;z-index:70;max-width:520px;background:#fff;border:1px solid var(--mist);
@@ -676,3 +684,73 @@ body.body-modal-open .wa{z-index:60}
 .table-scroll{max-width:100%;overflow-x:auto;margin-top:1.25rem}.article-content table{width:100%;border-collapse:collapse;min-width:520px}.article-content th,.article-content td{padding:.75rem;border:1px solid var(--mist);text-align:left;vertical-align:top}.article-content th{background:var(--teal-50)}
 .article-content pre{overflow:auto;padding:1rem;background:#11191c;color:#f5f7f7;border-radius:var(--r-sm)}
 @media(max-width:760px){.authority-google{grid-template-columns:1fr}.authority-google__facts{grid-template-columns:1fr}.footer__authority{grid-column:auto}}
+
+/* ============ PRÉ-LANÇAMENTO V1.3: Blog editorial e leitura ============ */
+.phero--blog{padding-block:clamp(2.4rem,5vw,4rem)}
+.phero--blog .lead{max-width:66ch}
+.blog-index{padding-top:clamp(2.2rem,5vw,4rem)}
+.blog-featured{margin-bottom:clamp(2.8rem,6vw,4.6rem)}
+.blog-index__head{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin-bottom:1.4rem}
+.blog-index__head .eyebrow{margin-bottom:.45rem}
+.blog-index__head h2{font-size:var(--step-2)}
+.blog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}
+.post-card{position:relative;display:flex;flex-direction:column;min-width:0;padding:clamp(1.35rem,3vw,1.75rem);border:1px solid var(--mist);border-radius:var(--r);background:#fff;box-shadow:0 8px 28px -26px rgba(11,16,19,.45);transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+.post-card:hover{border-color:rgba(0,108,116,.48);transform:translateY(-2px);box-shadow:var(--shadow)}
+.post-card__cat,.related-card__cat{align-self:flex-start;display:inline-flex;padding:.32rem .66rem;border-radius:100px;background:var(--teal-50);color:var(--teal-900);font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.post-card h2{font-size:clamp(1.28rem,1.15rem + .45vw,1.62rem);line-height:1.22;margin:.9rem 0 .7rem;letter-spacing:-.015em}
+.post-card h2 a:hover{text-decoration:underline;text-decoration-thickness:.08em;text-underline-offset:.14em}
+.post-card p{color:var(--graphite);font-family:var(--font-serif);line-height:1.55}
+.post-card__meta{margin-top:auto;padding-top:1.15rem;color:var(--graphite);font-size:.8rem;line-height:1.45}
+.post-card__link,.related-card__link{display:inline-flex;align-items:center;gap:.3rem;margin-top:.8rem;color:var(--teal-700);font-weight:800;font-size:.9rem}
+.post-card__link:hover,.related-card__link:hover{text-decoration:underline;text-underline-offset:.18em}
+.post-card--featured{overflow:hidden;display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:clamp(1.5rem,4vw,3.4rem);padding:clamp(1.6rem,4vw,2.5rem);background:linear-gradient(135deg,var(--teal-50),#fff 58%);border-color:rgba(0,108,116,.24)}
+.post-card__visual{display:flex;align-items:center;justify-content:center;min-height:190px;border-radius:calc(var(--r) - 4px);background:linear-gradient(145deg,var(--teal-900),var(--teal-700));color:#fff;font-weight:800;font-size:var(--step-1);letter-spacing:-.02em;text-align:center;padding:1.5rem}
+.post-card--featured .post-card__body{display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.post-card--featured .post-card__cat{margin-bottom:.85rem}
+.post-card--featured h2{font-size:clamp(1.65rem,1.35rem + 1vw,2.35rem);margin:0 0 .85rem;max-width:24ch}
+.post-card--featured .post-card__meta{margin-top:1.2rem;padding-top:0}
+.post-card--featured .post-card__link{margin-top:1rem}
+
+.article-section .wrap{max-width:calc(80ch + (2 * var(--gut)))}
+.article-content{max-width:78ch;margin-inline:auto}
+.article-layout{display:block}
+.article-aside{display:none}
+.related-articles{border-top:1px solid var(--mist)}
+.related-articles__head{margin-bottom:1.4rem}
+.related-articles__head .eyebrow{margin-bottom:.45rem}
+.related-articles__head h2{font-size:var(--step-2)}
+.related-articles__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.related-card{display:flex;flex-direction:column;gap:.7rem;padding:1.25rem;border:1px solid var(--mist);border-radius:var(--r);background:#fff;color:var(--ink);text-decoration:none;transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+.related-card:hover{border-color:rgba(0,108,116,.48);transform:translateY(-2px);box-shadow:var(--shadow)}
+.related-card h3{font-size:1.05rem;line-height:1.3;margin:0}
+.related-card h3 a:hover{text-decoration:underline;text-underline-offset:.15em}
+.related-card p{color:var(--graphite);font-size:.9rem;line-height:1.5}
+.related-card__link{margin-top:auto}
+
+@media(max-width:900px){
+  .post-card--featured{grid-template-columns:1fr}
+  .post-card__visual{min-height:120px}
+  .related-articles__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .blog-grid,.related-articles__grid{grid-template-columns:1fr}
+  .blog-index__head{display:block}
+  .post-card--featured{padding:1.35rem}
+  .post-card--featured h2{font-size:var(--step-2)}
+}
+
+/* ============ V1.3: proteção de overflow em telas estreitas ============ */
+.card p,.insta p,.footer a{overflow-wrap:anywhere;word-break:break-word}
+.insta>*{min-width:0}
+@media(max-width:720px){
+  .insta__btn{max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+}
+.tax-change-table{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ============ V1.3 pós-auditoria: zona segura para WhatsApp mobile ============ */
+@media(max-width:560px){
+  .phero .lead{padding-right:4.25rem}
+  .article-meta__text{display:block;max-width:calc(100% - 4.25rem)}
+  #contact-form-intro{max-width:calc(100% - 4.25rem)}
+  .related-card{padding-right:4.25rem}
+}

@@ -90,7 +90,7 @@ def validate_public_allowlist() -> None:
         "404.html","_headers","_redirects","blog.html","contabilidade-para-clinicas-e-medicos.html",
         "contabilidade-para-construcao-civil.html","contabilidade-para-prestadores-de-servico.html",
         "contabilidade-para-transportadoras.html","contato.html","feed.xml","gestao-financeira.html",
-        "index.html","planos.html","politica-de-privacidade.html","post.html","reforma-tributaria.html",
+        "index.html","planos.html","politica-de-privacidade.html","reforma-tributaria.html",
         "robots.txt","segmentos.html","servicos.html","sitemap.xml","sobre.html",
     }
     allowed_top_dirs={"admin","assets","blog"}
@@ -149,6 +149,8 @@ def validate_project_configuration() -> None:
     check('MarkdownIt("commonmark"' in renderer and '"html": False' in renderer, "Markdown seguro não configurado")
     check("javascript:" in renderer and "ALLOWED_TAGS" in renderer, "Sanitização por allowlist ausente")
     check('\"priceRange\"' not in '\n'.join(p.read_text(errors='ignore') for p in REPO.glob('*.html')), 'priceRange ainda existe nas fontes HTML')
+    check('FINGERPRINT_SOURCES' in build and 'createFingerprintAssets' in build, 'Fingerprinting não implementado no build')
+    check('legacyPost' not in build, 'Arquitetura post.html legada permanece no build')
 
 
 def validate_authority_and_entities() -> None:
@@ -254,6 +256,8 @@ def validate_redirects_and_404() -> None:
     check(any("www.enterprisecontabilidade.com.br" in x and "301" in x for x in redirects), "Redirect www ausente")
     for old,new in json.loads((REPO/"config/site.config.json").read_text())["legacyPages"].items():
         check(any(x.startswith(f"{old} {new} 301") for x in redirects), f"Redirect legado ausente: {old}")
+    check(not (DIST/"post.html").exists(), "post.html legado foi publicado")
+    check(any(line.startswith('/post.html p=') and ' 301!' in line for line in redirects), "Redirects dos links post.html?p=slug ausentes")
     check((DIST/"404.html").exists(), "404 ausente")
     e=(DIST/"404.html").read_text(); check('noindex, follow' in e, "404 sem noindex, follow")
     check(not any(re.match(r"/\*\s+/.+\s+200",x) for x in redirects), "Catch-all 200 indevido")
@@ -309,8 +313,11 @@ def validate_cache_rules() -> None:
     immediate='public, max-age=0, must-revalidate'; moderate='public, max-age=3600, must-revalidate'; image='public, max-age=86400, must-revalidate'
     for path in ['/', '/sobre', '/blog', '/blog/artigo/', '/sitemap.xml', '/feed.xml']:
         check(effective_cache(path,rules)==immediate,f"Cache HTML/XML incorreto para {path}: {effective_cache(path,rules)}")
-    for path in ['/assets/css/styles.css','/assets/js/main.js']:
-        check(effective_cache(path,rules)==moderate,f"Cache de asset fixo incorreto para {path}")
+    fingerprinted='public, max-age=31536000, immutable'
+    css_files=list((DIST/'assets/css').glob('styles.*.css')); js_files=list((DIST/'assets/js').glob('main.*.js'))
+    check(len(css_files)==1 and len(js_files)==1, 'Assets fingerprinted ausentes ou duplicados')
+    for path in ['/'+css_files[0].relative_to(DIST).as_posix(), '/'+js_files[0].relative_to(DIST).as_posix()]:
+        check(effective_cache(path,rules)==fingerprinted,f"Cache fingerprinted incorreto para {path}")
     check(effective_cache('/assets/img/og-enterprise-1200x630.jpg',rules)==image,"Cache da imagem social incorreto")
 
 

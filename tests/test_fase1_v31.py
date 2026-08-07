@@ -27,8 +27,12 @@ def check(condition: bool, message: str) -> None:
 
 def site_document(filename: str = "index.html", fetch_mode: str = "success") -> str:
     html = (ROOT / filename).read_text(encoding="utf-8")
-    css = (ROOT / "assets/css/styles.css").read_text(encoding="utf-8")
-    js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
+    css_match = re.search(r'href="(/assets/css/styles\.[0-9a-f]{8}\.css)"', html)
+    js_match = re.search(r'src="(/assets/js/main\.[0-9a-f]{8}\.js)"', html)
+    if not css_match or not js_match:
+        raise AssertionError(f"Assets fingerprinted ausentes em {filename}")
+    css = (ROOT / css_match.group(1).lstrip('/')).read_text(encoding="utf-8")
+    js = (ROOT / js_match.group(1).lstrip('/')).read_text(encoding="utf-8")
     mock_fetch = f"""
 <script>
 window.__fetchMode = {fetch_mode!r};
@@ -49,8 +53,8 @@ window.fetch = function (url, options) {{
 }};
 </script>
 """
-    html = re.sub(r'<link[^>]+href="/?assets/css/styles\.css"[^>]*>', lambda _m: f"<style>{css}</style>", html)
-    html = re.sub(r'<script[^>]+src="/?assets/js/main\.js"[^>]*></script>', lambda _m: mock_fetch + f"<script>{js}</script>", html)
+    html = re.sub(r'<link[^>]+href="/?assets/css/styles\.[0-9a-f]{8}\.css"[^>]*>', lambda _m: f"<style>{css}</style>", html)
+    html = re.sub(r'<script[^>]+src="/?assets/js/main\.[0-9a-f]{8}\.js"[^>]*></script>', lambda _m: mock_fetch + f"<script>{js}</script>", html)
     html = re.sub(
         r'<script src="https://identity\.netlify\.com[^>]*></script>\s*<script>.*?</script>',
         "",
@@ -132,8 +136,8 @@ def close_x(page: Page) -> None:
 def test_static_regression() -> None:
     html_files = sorted(ROOT.glob("*.html"))
     index = (ROOT / "index.html").read_text(encoding="utf-8")
-    js = (ROOT / "assets/js/main.js").read_text(encoding="utf-8")
-    css = (ROOT / "assets/css/styles.css").read_text(encoding="utf-8")
+    js = (REPO / "assets/js/main.js").read_text(encoding="utf-8")
+    css = (REPO / "assets/css/styles.css").read_text(encoding="utf-8")
 
     contact_links: list[str] = []
     for path in html_files:
